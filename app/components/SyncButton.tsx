@@ -1,26 +1,29 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface SyncButtonProps {
   referenceSrt: File | null;
   targetSrt: File | null;
   onSyncComplete: (syncedSrt: string) => void;
-  setIsLoading: (isLoading: boolean) => void;
 }
 
 export default function SyncButton({
   referenceSrt,
   targetSrt,
   onSyncComplete,
-  setIsLoading,
 }: SyncButtonProps) {
+  const [loading, setLoading] = useState(false);
+
   const handleSync = async () => {
     if (!referenceSrt || !targetSrt) {
-      alert("Please upload both reference and target SRT files.");
+      toast.error("Please upload both reference and target SRT files.");
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
 
     const formData = new FormData();
     formData.append("referenceSrt", referenceSrt);
@@ -35,24 +38,25 @@ export default function SyncButton({
       if (response.ok) {
         const syncedSrt = await response.text();
         onSyncComplete(syncedSrt);
-        alert("Subtitles synced successfully!");
+        toast.success("Subtitles synced successfully!");
       } else {
-        alert("Failed to sync subtitles.");
+        toast.error("Failed to sync subtitles.");
       }
     } catch (error) {
       console.error("Error syncing subtitles:", error);
-      alert("An error occurred while syncing subtitles.");
+      toast.error("An error occurred while syncing subtitles.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <Button
       onClick={handleSync}
-      disabled={!referenceSrt || !targetSrt}
+      disabled={!referenceSrt || !targetSrt || loading}
     >
-      Sync Now
+      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {loading ? "Syncing..." : "Sync Now"}
     </Button>
   );
 }

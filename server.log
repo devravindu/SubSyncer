@@ -1,0 +1,15 @@
+
+> subs-syncer@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.3
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.3s
+ ○ Compiling / ...
+ ✓ Compiled / in 10.3s (1232 modules)
+ GET / 200 in 10995ms
+ ○ Compiling /api/sync ...
+ ✓ Compiled /api/sync in 6.9s (637 modules)
+ POST /api/sync 200 in 7033ms
