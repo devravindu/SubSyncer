@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface DownloadButtonProps {
   syncedSrt: string | null;
@@ -8,7 +9,7 @@ interface DownloadButtonProps {
 export default function DownloadButton({ syncedSrt }: DownloadButtonProps) {
   const handleDownload = () => {
     if (!syncedSrt) {
-      alert("No synced subtitle to download.");
+      toast.error("No synced subtitle to download.");
       return;
     }
 
@@ -21,6 +22,7 @@ export default function DownloadButton({ syncedSrt }: DownloadButtonProps) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    toast.success("Download started!");
   };
 
   return (

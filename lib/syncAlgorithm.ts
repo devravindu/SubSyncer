@@ -1,15 +1,5 @@
 import { SrtSubtitle } from "./types";
 
-function timeToMs(time: string): number {
-  const parts = time.split(/[:,]/);
-  return (
-    parseInt(parts[0]) * 3600000 +
-    parseInt(parts[1]) * 60000 +
-    parseInt(parts[2]) * 1000 +
-    parseInt(parts[3])
-  );
-}
-
 function msToTime(ms: number): string {
   const hours = Math.floor(ms / 3600000);
   ms %= 3600000;
@@ -57,6 +47,10 @@ function findBestMatch(
   let bestMatchIndex = -1;
   let minDistance = Infinity;
 
+  // Allow some flexibility but reject very different strings
+  // 40% of length as threshold, or at least 5 characters diff
+  const threshold = Math.max(cue.text.length * 0.4, 5);
+
   for (let i = 0; i < Math.min(subs.length, searchWindow); i++) {
     const distance = levenshtein(cue.text, subs[i].text);
     if (distance < minDistance) {
@@ -64,6 +58,11 @@ function findBestMatch(
       bestMatchIndex = i;
     }
   }
+
+  if (minDistance > threshold) {
+      return -1;
+  }
+
   return bestMatchIndex;
 }
 
@@ -76,36 +75,50 @@ export function syncSubtitles(
   }
 
   const firstMatchRefIndex = 0;
-  const firstMatchTargetIndex = findBestMatch(refSubs[0], targetSubs);
+  const matchIndex = findBestMatch(refSubs[0], targetSubs);
+  const firstMatchTargetIndex = matchIndex;
 
   const lastMatchRefIndex = refSubs.length - 1;
-  const lastMatchTargetIndex = findBestMatch(
+
+  const lastTargetSlice = targetSubs.slice(Math.max(0, targetSubs.length - 20));
+  const lastMatchIndexInSlice = findBestMatch(
     refSubs[refSubs.length - 1],
-    targetSubs.slice(Math.max(0, targetSubs.length - 20))
-  ) + Math.max(0, targetSubs.length - 20);
+    lastTargetSlice
+  );
+
+  const lastMatchTargetIndex = lastMatchIndexInSlice !== -1
+    ? lastMatchIndexInSlice + Math.max(0, targetSubs.length - 20)
+    : -1;
 
   if (firstMatchTargetIndex === -1 || lastMatchTargetIndex === -1) {
-    return targetSubs; // No matches found
+    // If we can't find matches at start or end, we can't reliably sync.
+    // Ideally we would try to find matches in the middle, but for now fallback.
+    return targetSubs;
   }
 
-  const refStartMs = timeToMs(refSubs[firstMatchRefIndex].startTime);
-  const refEndMs = timeToMs(refSubs[lastMatchRefIndex].startTime);
+  const refStartMs = refSubs[firstMatchRefIndex].startSeconds * 1000;
+  const refEndMs = refSubs[lastMatchRefIndex].startSeconds * 1000;
 
-  const targetStartMs = timeToMs(
-    targetSubs[firstMatchTargetIndex].startTime
-  );
-  const targetEndMs = timeToMs(targetSubs[lastMatchTargetIndex].startTime);
+  const targetStartMs = targetSubs[firstMatchTargetIndex].startSeconds * 1000;
+  const targetEndMs = targetSubs[lastMatchTargetIndex].startSeconds * 1000;
+
+  if (targetEndMs === targetStartMs) {
+      return targetSubs;
+  }
 
   const ratio = (refEndMs - refStartMs) / (targetEndMs - targetStartMs);
   const offset = refStartMs - targetStartMs * ratio;
 
   return targetSubs.map((line) => {
-    const startMs = timeToMs(line.startTime) * ratio + offset;
-    const endMs = timeToMs(line.endTime) * ratio + offset;
+    const startMs = Math.round(line.startSeconds * 1000 * ratio + offset);
+    const endMs = Math.round(line.endSeconds * 1000 * ratio + offset);
     return {
       ...line,
       startTime: msToTime(startMs),
       endTime: msToTime(endMs),
+      // Update seconds as well to be consistent
+      startSeconds: startMs / 1000,
+      endSeconds: endMs / 1000
     };
   });
 }

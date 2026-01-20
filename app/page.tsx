@@ -12,7 +12,6 @@ export default function Home() {
   const [referenceSrt, setReferenceSrt] = useState<File | null>(null);
   const [targetSrt, setTargetSrt] = useState<File | null>(null);
   const [syncedSrt, setSyncedSrt] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <main className="container mx-auto p-4">
@@ -41,15 +40,9 @@ export default function Home() {
           referenceSrt={referenceSrt}
           targetSrt={targetSrt}
           onSyncComplete={setSyncedSrt}
-          setIsLoading={setIsLoading}
         />
         <DownloadButton syncedSrt={syncedSrt} />
       </div>
-      {isLoading && (
-        <div className="flex justify-center mt-4">
-          <p>Syncing in progress...</p>
-        </div>
-      )}
       <Footer />
     </main>
   );
