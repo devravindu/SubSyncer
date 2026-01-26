@@ -34,7 +34,7 @@ const PreviewContent = ({ file }: { file: File | null }) => {
 
   if (!file) {
     return (
-      <CardContent className="h-64 flex items-center justify-center text-gray-400 italic">
+      <CardContent className="h-64 flex items-center justify-center text-muted-foreground italic font-mono">
         No file selected
       </CardContent>
     );
@@ -42,37 +42,37 @@ const PreviewContent = ({ file }: { file: File | null }) => {
 
   return (
     <CardContent className="p-0">
-      <div className="h-64 overflow-y-auto border rounded-md m-4">
-        <table className="w-full text-sm text-left">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0">
+      <div className="h-64 overflow-y-auto border border-primary/20 rounded-none m-4 bg-black/40 custom-scrollbar">
+        <table className="w-full text-sm text-left font-mono">
+          <thead className="text-xs text-primary uppercase bg-primary/10 sticky top-0 backdrop-blur-sm">
             <tr>
               <th className="px-4 py-2 w-16">#</th>
               <th className="px-4 py-2 w-32">Time</th>
               <th className="px-4 py-2">Text</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-primary/10">
             {subs.length === 0 ? (
                  <tr>
-                    <td colSpan={3} className="text-center py-4 text-gray-500">
+                    <td colSpan={3} className="text-center py-4 text-muted-foreground">
                         Parsing subtitles... or empty file.
                     </td>
                 </tr>
             ) : (
                 subs.slice(0, 100).map((sub) => (
-                    <tr key={sub.id} className="border-b hover:bg-gray-50">
-                        <td className="px-4 py-2 font-medium text-gray-500">{sub.id}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-xs text-gray-500">
-                            <div>{sub.startTime}</div>
-                            <div>{sub.endTime}</div>
+                    <tr key={sub.id} className="hover:bg-primary/5 transition-colors border-b border-primary/10">
+                        <td className="px-4 py-2 font-medium text-primary/70">{sub.id}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-xs text-muted-foreground">
+                            <div className="text-primary/60">{sub.startTime}</div>
+                            <div className="text-primary/60">{sub.endTime}</div>
                         </td>
-                        <td className="px-4 py-2">{sub.text}</td>
+                        <td className="px-4 py-2 text-foreground/90">{sub.text}</td>
                     </tr>
                 ))
             )}
             {subs.length > 100 && (
                 <tr>
-                    <td colSpan={3} className="text-center py-2 text-xs text-gray-400">
+                    <td colSpan={3} className="text-center py-2 text-xs text-muted-foreground">
                         ... {subs.length - 100} more lines hidden ...
                     </td>
                 </tr>

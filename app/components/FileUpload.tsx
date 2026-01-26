@@ -20,23 +20,29 @@ export default function FileUpload({ title, onFileChange }: FileUploadProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-      <p className="mt-1 text-sm text-gray-600">
-        {fileName ? fileName : "Drag and drop or"}
+    <div className="flex flex-col items-center justify-center border border-dashed border-primary/30 bg-background/20 rounded-none p-8 text-center hover:border-primary hover:bg-primary/5 hover:shadow-[0_0_15px_rgba(0,255,255,0.1)] transition-all duration-300">
+      <Upload className="mx-auto h-12 w-12 text-primary animate-pulse" />
+      <p className="mt-4 text-sm text-muted-foreground font-mono">
+        {fileName ? (
+          <span className="text-primary font-bold">{fileName}</span>
+        ) : (
+          "Drag and drop or"
+        )}
       </p>
-      <Button variant="outline" asChild>
-        <label htmlFor={title} className="cursor-pointer">
-          Click to upload
-          <input
-            id={title}
-            type="file"
-            className="sr-only"
-            onChange={handleFileChange}
-            accept=".srt"
-          />
-        </label>
-      </Button>
+      <div className="mt-4">
+        <Button variant="secondary" asChild className="uppercase tracking-widest">
+          <label htmlFor={title} className="cursor-pointer">
+            Click to upload
+            <input
+              id={title}
+              type="file"
+              className="sr-only"
+              onChange={handleFileChange}
+              accept=".srt"
+            />
+          </label>
+        </Button>
+      </div>
     </div>
   );
 }
